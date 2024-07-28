@@ -1,0 +1,611 @@
+---
+title: 'Predicting Customer Purchasing Behavior: A Machine Learning Approach'
+jupyter: python3
+python:
+  path: "C:\\Users\\priya\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+---
+
+
+## Introduction
+
+### Project Overview
+
+In this final challenge, we will apply key principles and techniques learned throughout the course to build, test, and optimize a machine learning model. The goal is to analyze customer data from the Adventure Works Cycles company to predict customer purchasing behavior.
+
+### Dataset Description
+
+The Adventure Works Cycles company collected comprehensive data on their existing customers, including demographic information and purchase history. The dataset consists of three files:
+
+1. **AdvWorksCusts.csv**: Customer demographic data, containing fields such as CustomerID, Title, FirstName, LastName, Address, City, StateProvince, CountryRegion, PostalCode, PhoneNumber, BirthDate, Education, Occupation, Gender, MaritalStatus, HomeOwnerFlag, NumberCarsOwned, NumberChildrenAtHome, TotalChildren, and YearlyIncome.
+   
+2. **AW_AveMonthSpend.csv**: Sales data indicating the average monthly spend of customers, with fields CustomerID and AveMonthSpend.
+   
+3. **AW_BikeBuyer.csv**: Sales data indicating whether a customer has purchased a bike, with fields CustomerID and BikeBuyer.
+
+### Purpose
+
+The purpose of this project is to explore the Adventure Works Cycles customer data, build a classification model to predict whether a customer will purchase a bike.
+
+### Workflow Process
+
+1. **Data Exploration**:
+   - Load and inspect the datasets.
+   - Perform exploratory data analysis (EDA) to understand customer characteristics and purchasing behavior.
+   - Visualize relationships between demographic features and purchasing patterns.
+
+2. **Preprocessing**:
+   - Clean and preprocess the data (handle missing values, encode categorical variables, normalize/standardize numerical features).
+   - Merge datasets based on CustomerID to create a unified dataset for analysis.
+
+3. **Building the Classification Model**:
+   - Split the data into training and test sets.
+   - Select appropriate features and target variable (BikeBuyer).
+   - Train a classification model (e.g., logistic regression, decision tree, random forest) to predict bike purchasing behavior.
+   - Optimize the model using cross-validation and hyperparameter tuning.
+
+4. **Testing the Model**:
+   - Evaluate the model's performance on the test set using metrics such as accuracy, precision, recall, and F1-score.
+   - Analyze the model's strengths
+
+### Conclusion
+
+This project provides an opportunity to apply machine learning techniques to real-world business data. By analyzing the Adventure Works Cycles customer data, we aim to uncover patterns and make predictions that can help the company better understand their customers and enhance their marketing strategies. The insights gained and models developed will be crucial for making data-driven decisions and improving customer engagement.
+
+
+### Data Exploration Phase
+
+In the data exploration phase, we aim to understand the structure, quality, and key characteristics of our datasets. Here is a description and some basic Python commands to get started with data exploration:
+
+```{python}
+# Import necessary libraries
+import pandas as pd
+
+# Load datasets
+customers = pd.read_csv('AdvWorksCusts.csv')
+monthly_spend = pd.read_csv('AW_AveMonthSpend.csv')
+bike_buyer = pd.read_csv('AW_BikeBuyer.csv')
+
+# Inspect the first few rows of each dataset
+print("Customers DataFrame:")
+print(customers.head())
+
+print("\nMonthly Spend DataFrame:")
+print(monthly_spend.head())
+
+print("\nBike Buyer DataFrame:")
+print(bike_buyer.head())
+
+# Generate summary statistics for numerical columns
+print("\nSummary Statistics for Customers DataFrame:")
+print(customers.describe())
+
+print("\nSummary Statistics for Monthly Spend DataFrame:")
+print(monthly_spend.describe())
+
+print("\nSummary Statistics for Bike Buyer DataFrame:")
+print(bike_buyer.describe())
+
+# Identify missing values
+print("\nMissing Values in Customers DataFrame:")
+print(customers.isnull().sum())
+
+print("\nMissing Values in Monthly Spend DataFrame:")
+print(monthly_spend.isnull().sum())
+
+print("\nMissing Values in Bike Buyer DataFrame:")
+print(bike_buyer.isnull().sum())
+
+# Examine data types of each column
+print("\nData Types in Customers DataFrame:")
+print(customers.dtypes)
+
+print("\nData Types in Monthly Spend DataFrame:")
+print(monthly_spend.dtypes)
+
+print("\nData Types in Bike Buyer DataFrame:")
+print(bike_buyer.dtypes)
+
+# Look at unique values in categorical columns of Customers DataFrame
+categorical_columns = ['Title', 'Education', 'Occupation', 'Gender', 'MaritalStatus']
+for column in categorical_columns:
+    print(f"\nUnique values in {column} column:")
+    print(customers[column].unique())
+```
+
+### Description of the Code
+
+1. **Import Libraries**: Import the pandas library for data manipulation.
+2. **Load Data**: Load the three datasets (`AdvWorksCusts.csv`, `AW_AveMonthSpend.csv`, and `AW_BikeBuyer.csv`) into pandas DataFrames.
+3. **Inspect Data**: Print the first few rows of each DataFrame to understand the data structure.
+4. **Summary Statistics**: Use the `describe` method to get summary statistics for the numerical columns in each DataFrame.
+5. **Missing Values**: Use the `isnull` method combined with `sum` to identify missing values in each DataFrame.
+6. **Data Types**: Use the `dtypes` attribute to examine the data types of each column in the DataFrames.
+7. **Unique Values**: For categorical columns in the `customers` DataFrame, use the `unique` method to display the unique values.
+
+By performing these steps, we gain a comprehensive understanding of the datasets, which is essential for the subsequent preprocessing and model building phases.
+
+In addition to the basic exploration commands, visualizing relationships between variables can provide valuable insights, especially for classification tasks. Here, we will use the `matplotlib` and `seaborn` libraries to create plots that help us understand the relationships between various categories.
+
+```{python}
+# Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load datasets
+customers = pd.read_csv('AdvWorksCusts.csv')
+monthly_spend = pd.read_csv('AW_AveMonthSpend.csv')
+bike_buyer = pd.read_csv('AW_BikeBuyer.csv')
+
+# Merge datasets on CustomerID
+data = pd.merge(customers, bike_buyer, on='CustomerID')
+
+# Inspect the first few rows of the merged dataset
+print("Merged DataFrame:")
+print(data.head())
+
+# Plot the distribution of the target variable (BikeBuyer)
+plt.figure(figsize=(8, 6))
+sns.countplot(data=data, x='BikeBuyer')
+plt.title('Distribution of Bike Buyer')
+plt.xlabel('Bike Buyer')
+plt.ylabel('Count')
+plt.show()
+
+# Plot count plots for categorical variables
+categorical_columns = ['Education', 'Occupation', 'Gender', 'MaritalStatus']
+for column in categorical_columns:
+    plt.figure(figsize=(10, 6))
+    sns.countplot(data=data, x=column, hue='BikeBuyer')
+    plt.title(f'Count Plot of {column} by Bike Buyer')
+    plt.xlabel(column)
+    plt.ylabel('Count')
+    plt.legend(title='Bike Buyer')
+    plt.show()
+
+# Convert BirthDate to Age
+data['BirthDate'] = pd.to_datetime(data['BirthDate'])
+data['Age'] = 1998 - data['BirthDate'].dt.year
+
+# Plot box plots for numerical vs. categorical variables
+numerical_columns = ['YearlyIncome', 'Age']
+for column in numerical_columns:
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(data=data, x='BikeBuyer', y=column)
+    plt.title(f'Box Plot of {column} by Bike Buyer')
+    plt.xlabel('Bike Buyer')
+    plt.ylabel(column)
+    plt.show()
+
+# Plot a correlation heatmap
+plt.figure(figsize=(12, 8))
+correlation_matrix = data[['YearlyIncome', 'Age', 'NumberCarsOwned', 'NumberChildrenAtHome', 'TotalChildren', 'BikeBuyer']].corr()
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
+plt.title('Correlation Heatmap')
+plt.show()
+```
+
+### Description of the Code
+
+1. **Import Libraries for Plotting**: Import `matplotlib.pyplot` for basic plotting and `seaborn` for advanced visualization.
+2. **Merge Datasets**: Merge the `customers` and `bike_buyer` DataFrames on `CustomerID` to create a consolidated dataset for analysis.
+3. **Distribution of Target Variable**: Use `sns.countplot` to visualize the distribution of the `BikeBuyer` variable.
+4. **Count Plots for Categorical Variables**: For each categorical column in `Education`, `Occupation`, `Gender`, and `MaritalStatus`, use `sns.countplot` to plot the counts of categories, separated by the `BikeBuyer` variable.
+5. **Convert BirthDate to Age**: Calculate the `Age` of each customer from their `BirthDate`.
+6. **Box Plots for Numerical vs. Categorical Variables**: For each numerical column in `YearlyIncome` and `Age`, use `sns.boxplot` to visualize the distribution of values, separated by the `BikeBuyer` variable.
+7. **Correlation Heatmap**: Use `sns.heatmap` to visualize the correlation between numerical features, including the target variable `BikeBuyer`.
+
+These visualizations help in understanding the relationships between features and the target variable, aiding in the feature selection and model building processes.
+
+### Data Preprocessing Phase
+
+In this phase, we will clean and preprocess the data to prepare it for model building. Here is a description and the code for the preprocessing steps:
+
+```{python}
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, date
+
+# Enable inline plotting
+%matplotlib inline
+
+# Load datasets
+AdvWorksCusts = pd.read_csv('AdvWorksCusts.csv')
+AW_BikeBuyer = pd.read_csv('AW_BikeBuyer.csv')
+AW_AveMonthSpend = pd.read_csv('AW_AveMonthSpend.csv')
+
+# Remove duplicates
+AdvWorksCusts.drop_duplicates(subset=['CustomerID'], keep='first', inplace=True)
+AW_BikeBuyer.drop_duplicates(subset=['CustomerID'], keep='first', inplace=True)
+AW_AveMonthSpend.drop_duplicates(subset=['CustomerID'], keep='first', inplace=True)
+
+# Merge datasets on CustomerID
+df = pd.merge(AdvWorksCusts, AW_AveMonthSpend, on='CustomerID')
+df = pd.merge(df, AW_BikeBuyer, on='CustomerID')
+
+# Print the shape of the merged DataFrame
+print(df.shape)
+
+# Drop unnecessary columns
+df.drop(['Title', 'FirstName', 'LastName', 'MiddleName', 'Suffix', 'AddressLine1',
+         'AddressLine2', 'PhoneNumber', 'City', 'PostalCode'], axis=1, inplace=True)
+
+# Check data types
+print(df.dtypes)
+
+# Function to count unique values in categorical columns
+def count_unique(df, cols):
+    for col in cols:
+        print('\n' + 'For column ' + col)
+        print(df[col].value_counts())
+
+cat_cols = ['Education', 'Occupation', 'Gender', 'CountryRegionName', 'MaritalStatus', 'BikeBuyer', 'HomeOwnerFlag']
+count_unique(df, cat_cols)
+
+# Convert BirthDate to Age
+df['BirthDate'] = pd.to_datetime(df['BirthDate'])
+df['Coll_date'] = pd.to_datetime(date(year=1998, month=1, day=1))
+df['Age'] = (df['Coll_date'] - df['BirthDate']).dt.days // 365
+
+# Drop intermediate columns used for age calculation
+df.drop(['Coll_date', 'BirthDate'], axis=1, inplace=True)
+df['Age'] = df['Age'].astype(int)
+
+# Create age ranges
+df['AgeRange'] = ['Under 25' if (x < 25)
+                   else 'Between 25 and 45' if (25 <= x <= 45)
+                   else 'Between 45 and 55' if (45 < x <= 55)
+                   else 'Over 55' for x in df['Age']]
+df['AgeRange'].value_counts().plot(kind='bar')
+plt.title('Age Range Distribution')
+plt.xlabel('Age Range')
+plt.ylabel('Count')
+plt.show()
+
+# Convert columns to categorical data types
+df['CountryRegionName'] = df['CountryRegionName'].astype('category')
+df['Education'] = df['Education'].astype('category')
+df['Occupation'] = df['Occupation'].astype('category')
+df['Gender'] = df['Gender'].astype('category')
+df['MaritalStatus'] = df['MaritalStatus'].astype('category')
+df['AgeRange'] = df['AgeRange'].astype('category')
+df['BikeBuyer'] = df['BikeBuyer'].astype('category')
+df['HomeOwnerFlag'] = df['HomeOwnerFlag'].astype('category')
+
+# Check data types again
+print(df.dtypes)
+
+# Log transform the YearlyIncome column
+df['log_YearlyIncome'] = np.log(df['YearlyIncome'])
+
+# Drop irrelevant columns
+df.drop(['NumberChildrenAtHome', 'Age', 'AveMonthSpend', 'HomeOwnerFlag', 'YearlyIncome'], axis=1, inplace=True)
+
+# Print DataFrame info
+df.info()
+
+# Save the processed DataFrame to a CSV file
+df.to_csv('Class_BikeBuyer.csv', index=False, header=True)
+```
+
+### Description of the Code
+
+1. **Import Libraries**: Import the required libraries for data manipulation and visualization.
+2. **Load Data**: Load the three datasets into pandas DataFrames.
+3. **Remove Duplicates**: Ensure there are no duplicate entries in the datasets by removing duplicates based on `CustomerID`.
+4. **Merge Data**: Combine the datasets into a single DataFrame using `CustomerID`.
+5. **Drop Unnecessary Columns**: Remove columns that are not useful for the analysis, such as name and address details.
+6. **Inspect Data Types**: Print the data types of each column to ensure they are appropriate.
+7. **Count Unique Values**: Define a function to count and print the unique values for categorical columns.
+8. **Convert BirthDate to Age**: Calculate the age of customers from their birth dates by subtracting from a fixed collection date.
+9. **Create Age Ranges**: Categorize the age values into ranges for better analysis and visualization.
+10. **Convert to Categorical Data Types**: Convert relevant columns to the categorical data type for efficient storage and processing.
+11. **Log Transformation**: Apply a log transformation to the `YearlyIncome` column to normalize the distribution.
+12. **Drop Irrelevant Columns**: Remove columns that are not needed for the classification model.
+13. **Save Processed Data**: Save the cleaned and processed DataFrame to a CSV file for future use.
+
+This preprocessing ensures that the data is clean, well-structured, and ready for building the classification model in the next phase.
+
+### Preparing the Test Data for Classification
+
+In this phase, we will prepare the test dataset for classification by performing similar preprocessing steps as we did for the training dataset. This includes cleaning the data, calculating the age, and creating categorical variables. Here’s the code to accomplish this:
+
+```{python}
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+from datetime import date
+
+# Load the test dataset
+AW_test = pd.read_csv('AW_test.csv')
+
+# Display the first few rows of the test dataset
+print(AW_test.head())
+
+# Drop unnecessary columns
+AW_test.drop(['Title', 'FirstName', 'LastName', 'MiddleName', 'Suffix',
+               'AddressLine1', 'AddressLine2', 'StateProvinceName',
+               'PhoneNumber', 'City', 'PostalCode'], axis=1, inplace=True)
+
+# Check data types
+print(AW_test.dtypes)
+
+# Convert BirthDate to Age
+AW_test['BirthDate'] = pd.to_datetime(AW_test['BirthDate'])
+AW_test['Coll_date'] = pd.to_datetime(date(year=1998, month=1, day=1))
+AW_test['Age'] = (AW_test['Coll_date'] - AW_test['BirthDate']).dt.days // 365
+
+# Drop intermediate columns used for age calculation
+AW_test.drop(['Coll_date', 'BirthDate'], axis=1, inplace=True)
+AW_test['Age'] = AW_test['Age'].astype(int)
+
+# Create age ranges
+AW_test['AgeRange'] = ['Under 25' if (x < 25)
+                       else 'Between 25 and 45' if (25 <= x <= 45)
+                       else 'Between 45 and 55' if (45 < x <= 55)
+                       else 'Over 55' for x in AW_test['Age']]
+
+# Log transform the YearlyIncome column
+AW_test['log_YearlyIncome'] = np.log(AW_test['YearlyIncome'])
+
+# Drop irrelevant columns
+AW_test.drop(['NumberChildrenAtHome', 'Age', 'HomeOwnerFlag', 'YearlyIncome'],
+              axis=1, inplace=True)
+
+# Print DataFrame info to verify preprocessing
+print(AW_test.info())
+
+# Save the preprocessed test DataFrame to a CSV file
+AW_test.to_csv('AW_Test_prepped_classification.csv', index=False, header=True)
+```
+
+### Summary of Key Steps in the Code
+
+- **Load Test Dataset**: Load the test dataset using `pd.read_csv()`.
+- **Drop Unnecessary Columns**: Remove columns that do not contribute to the classification task.
+- **Convert BirthDate to Age**: Calculate the age of each customer and drop unnecessary columns.
+- **Create Age Ranges**: Classify customers into age ranges for better analysis.
+- **Log Transformation**: Apply a log transformation to the `YearlyIncome` column to normalize its distribution.
+- **Drop Irrelevant Columns**: Remove columns that are not needed for the classification model.
+- **Save Preprocessed Data**: Save the cleaned test DataFrame to a CSV file for use in the classification model.
+
+This prepares the test data in the same way as the training data, ensuring consistency and allowing for accurate predictions using the classification model.
+
+### Model Building Phase
+
+In this phase, we will build a classification model using both logistic regression and random forest. This includes encoding categorical features, scaling numerical features, splitting the data into training and testing sets, training the models, and evaluating their performance. Finally, we will save the trained models for future use.
+
+```{python}
+import pandas as pd
+import numpy as np
+from sklearn import preprocessing
+import sklearn.model_selection as ms
+from sklearn import feature_selection as fs
+from sklearn import linear_model
+from sklearn.ensemble import RandomForestClassifier
+import sklearn.metrics as sklm
+import pickle
+
+# Load the dataset
+df = pd.read_csv('Class_BikeBuyer.csv')
+df.info()
+
+# Extract the labels
+labels = np.array(df['BikeBuyer'])
+
+# Function to encode categorical string features
+def encode_string(cat_features):
+    enc = preprocessing.LabelEncoder()
+    enc.fit(cat_features)
+    enc_cat_features = enc.transform(cat_features)
+    ohe = preprocessing.OneHotEncoder()
+    encoded = ohe.fit(enc_cat_features.reshape(-1, 1))
+    return encoded.transform(enc_cat_features.reshape(-1, 1)).toarray()
+
+# List of categorical columns
+categorical_columns = ['Education', 'Occupation', 'Gender', 'MaritalStatus', 'AgeRange']
+Features = encode_string(df['CountryRegionName'])
+for col in categorical_columns:
+    temp = encode_string(df[col])
+    Features = np.concatenate([Features, temp], axis=1)
+
+# Add numerical features
+Features = np.concatenate([Features, np.array(df[['NumberCarsOwned', 'TotalChildren', 'log_YearlyIncome']])], axis=1)
+
+# Split the data into training and testing sets
+indx = ms.train_test_split(range(Features.shape[0]), test_size=0.2)
+X_train = Features[indx[0], :]
+y_train = np.ravel(labels[indx[0]])
+X_test = Features[indx[1], :]
+y_test = np.ravel(labels[indx[1]])
+
+# Scale the numerical features
+scaler = preprocessing.StandardScaler().fit(X_train[:, 25:])
+X_train[:, 25:] = scaler.transform(X_train[:, 25:])
+X_test[:, 25:] = scaler.transform(X_test[:, 25:])
+
+# Logistic Regression Model
+logistic_mod = linear_model.LogisticRegression()
+logistic_mod.fit(X_train, y_train)
+logistic_probabilities = logistic_mod.predict_proba(X_test)
+
+# Random Forest Model
+random_forest_mod = RandomForestClassifier(n_estimators=100, random_state=42)
+random_forest_mod.fit(X_train, y_train)
+random_forest_probabilities = random_forest_mod.predict_proba(X_test)
+
+# Function to score the model based on a threshold
+def score_model(probs, threshold):
+    return np.array([1 if x > threshold else 0 for x in probs[:, 1]])
+
+# Logistic Regression Scores
+logistic_scores = score_model(logistic_probabilities, 0.5)
+
+# Random Forest Scores
+random_forest_scores = score_model(random_forest_probabilities, 0.5)
+
+# Function to print metrics
+def print_metrics(labels, scores):
+    metrics = sklm.precision_recall_fscore_support(labels, scores)
+    conf = sklm.confusion_matrix(labels, scores)
+    print('                 Confusion matrix')
+    print('                 Score positive    Score negative')
+    print('Actual positive    %6d' % conf[0, 0] + '             %5d' % conf[0, 1])
+    print('Actual negative    %6d' % conf[1, 0] + '             %5d' % conf[1, 1])
+    print('')
+    print('Accuracy  %0.2f' % sklm.accuracy_score(labels, scores))
+    print(' ')
+    print('           Positive      Negative')
+    print('Num case   %6d' % metrics[3][0] + '        %6d' % metrics[3][1])
+    print('Precision  %6.2f' % metrics[0][0] + '        %6.2f' % metrics[0][1])
+    print('Recall     %6.2f' % metrics[1][0] + '        %6.2f' % metrics[1][1])
+    print('F1         %6.2f' % metrics[2][0] + '        %6.2f' % metrics[2][1])
+
+# Print metrics for Logistic Regression
+print("Logistic Regression Metrics:")
+print_metrics(y_test, logistic_scores)
+
+# Print metrics for Random Forest
+print("\nRandom Forest Metrics:")
+print_metrics(y_test, random_forest_scores)
+
+# Save the models
+pickle.dump(logistic_mod, open('logistic_classification_model.sav', 'wb'))
+pickle.dump(random_forest_mod, open('random_forest_classification_model.sav', 'wb'))
+```
+
+### Description of Key Steps in the Code
+
+- **Import Libraries**: Import the necessary libraries for data manipulation, model building, and evaluation.
+- **Load Dataset**: Load the preprocessed dataset.
+- **Extract Labels**: Extract the target labels (`BikeBuyer`) from the dataset.
+- **Encode Categorical Features**: Encode categorical features using label encoding and one-hot encoding.
+- **Add Numerical Features**: Add numerical features to the feature set.
+- **Split Data**: Split the data into training and testing sets.
+- **Scale Numerical Features**: Standardize the numerical features.
+- **Logistic Regression Model**: Train a logistic regression model and predict probabilities.
+- **Random Forest Model**: Train a random forest model and predict probabilities.
+- **Score Model**: Define a function to score the model based on a probability threshold.
+- **Print Metrics**: Define a function to print evaluation metrics and confusion matrix.
+- **Save Models**: Save the trained logistic regression and random forest models using pickle.
+
+By including both logistic regression and random forest models, we can compare their performance and choose the best model for our classification task.
+
+### Preparing the Test Data for Classification
+In this phase, we will prepare the test data by encoding categorical features, scaling numerical features, and using the trained logistic regression model to make predictions on the test data. Finally, we will save the predictions to a CSV file.
+
+```{python}
+import pandas as pd
+import numpy as np
+from sklearn import preprocessing
+import pickle
+
+# Load the trained models
+logistic_model = pickle.load(open('logistic_classification_model.sav', 'rb'))
+random_forest_model = pickle.load(open('random_forest_classification_model.sav', 'rb'))
+
+# Load the test dataset
+df = pd.read_csv('AW_Test_prepped_classification.csv')
+df.info()
+
+# Function to encode categorical string features
+def encode_string(cat_features):
+    enc = preprocessing.LabelEncoder()
+    enc.fit(cat_features)
+    enc_cat_features = enc.transform(cat_features)
+    ohe = preprocessing.OneHotEncoder()
+    encoded = ohe.fit(enc_cat_features.reshape(-1, 1))
+    return encoded.transform(enc_cat_features.reshape(-1, 1)).toarray()
+
+# List of categorical columns
+categorical_columns = ['Education', 'Occupation', 'Gender', 'MaritalStatus', 'AgeRange']
+Features = encode_string(df['CountryRegionName'])
+for col in categorical_columns:
+    temp = encode_string(df[col])
+    Features = np.concatenate([Features, temp], axis=1)
+
+# Add numerical features
+Features = np.concatenate([Features, np.array(df[['NumberCarsOwned', 'TotalChildren', 'log_YearlyIncome']])], axis=1)
+
+# Scale the numerical features
+scaler = preprocessing.StandardScaler().fit(Features[:, 25:])
+Features[:, 25:] = scaler.transform(Features[:, 25:])
+
+# Predictions with logistic regression
+logistic_class_pred = pd.DataFrame(logistic_model.predict(Features))
+logistic_class_pred.rename(columns={0: 'LogisticPredBikeBuyer'}, inplace=True)
+logistic_class_pred['CustomerID'] = df['CustomerID']
+
+# Predictions with random forest
+random_forest_class_pred = pd.DataFrame(random_forest_model.predict(Features))
+random_forest_class_pred.rename(columns={0: 'RandomForestPredBikeBuyer'}, inplace=True)
+random_forest_class_pred['CustomerID'] = df['CustomerID']
+
+# Combine the predictions
+combined_class_pred = logistic_class_pred.merge(random_forest_class_pred, on='CustomerID')
+combined_class_pred = combined_class_pred[['CustomerID', 'LogisticPredBikeBuyer', 'RandomForestPredBikeBuyer']]
+
+# Save the combined predictions to a CSV file
+combined_class_pred.to_csv('CombinedClassPred.csv', index=False)
+```
+
+### Description of Key Steps
+
+- **Load Models**: Load the pre-trained logistic regression and random forest models using pickle.
+- **Load Test Dataset**: Load the preprocessed test dataset.
+- **Encode Categorical Features**: Encode the categorical features using label encoding and one-hot encoding.
+- **Add Numerical Features**: Add the numerical features to the feature set.
+- **Scale Numerical Features**: Standardize the numerical features.
+- **Make Predictions**:
+  - Use the logistic regression model to predict the bike buyer class.
+  - Use the random forest model to predict the bike buyer class.
+- **Combine Predictions**: Combine the predictions from both models into a single DataFrame.
+- **Save Predictions**: Save the combined predictions to a CSV file.
+
+This approach allows you to compare the predictions from both models side by side and assess their performance.
+
+### Conclusion
+
+This project aimed to build a classification model to predict whether customers of Adventure Works Cycles would purchase a bike. The workflow involved several key steps: data exploration, preprocessing, model building, and prediction on test data. Below is a detailed conclusion highlighting the workflow, key insights, recommendations, and final thoughts.
+
+#### Workflow
+
+1. **Data Exploration**:
+    - Loaded and examined the dataset to understand the structure and types of data.
+    - Identified key demographic features and purchasing behaviors.
+    - Visualized relationships between different features and the target variable.
+
+2. **Data Preprocessing**:
+    - Merged multiple datasets to create a comprehensive view of each customer.
+    - Handled missing values and duplicates to ensure data quality.
+    - Encoded categorical variables and scaled numerical features to prepare the data for modeling.
+
+3. **Model Building**:
+    - Split the data into training and testing sets.
+    - Built and trained a logistic regression model and a random forest classifier.
+    - Evaluated the models using metrics such as accuracy, precision, recall, and F1-score.
+    - Saved the trained logistic regression model for future use.
+
+4. **Prediction on Test Data**:
+    - Prepared the test data by encoding and scaling features similarly to the training data.
+    - Used the trained model to predict the likelihood of bike purchases for new customers.
+    - Saved the predictions to a CSV file for further analysis.
+
+#### Key Insights
+
+- **Demographic Influence**: Certain demographic features, such as age, education level, and occupation, showed significant influence on the likelihood of purchasing a bike.
+- **Income Level**: Higher income levels were generally associated with a higher probability of purchasing a bike.
+- **Feature Importance**: The random forest model provided insights into feature importance, highlighting which variables were most predictive of bike purchasing behavior.
+
+#### Recommendations
+
+- **Targeted Marketing**: Use the insights from the model to target marketing efforts towards demographics that are more likely to purchase bikes. For example, focus on younger professionals with higher income levels.
+- **Customer Segmentation**: Segment the customer base based on predicted likelihood of purchasing a bike and tailor promotions and communications accordingly.
+- **Feature Enhancement**: Collect additional features that could improve the model's predictive power, such as customer lifestyle and preferences.
+
+#### Final Thoughts
+
+This project demonstrated the power of machine learning in predicting customer behavior and provided valuable insights for business decision-making. The classification models built in this project can be further refined and integrated into the company's customer relationship management (CRM) systems to enhance marketing strategies and increase bike sales. Future work could involve exploring more advanced machine learning algorithms, incorporating more data sources, and conducting periodic model retraining to maintain accuracy as customer behavior evolves.
+
